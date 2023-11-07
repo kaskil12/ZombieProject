@@ -14,6 +14,8 @@ public class GunScript : MonoBehaviour
     bool Reloading;
     public PlayerMovement playerMovement;
     bool Executed = false;
+    [Header("Audio")]
+    public AudioSource ShootAudio;
     [Header("GunSpecs")]
     public float RecoilSpeed;
     public float RecoilAmount;
@@ -78,6 +80,7 @@ public class GunScript : MonoBehaviour
         Shoot = false;
         StartCoroutine(ShootDelay());
         GunAnim.SetTrigger("Shoot");
+        ShootAudio.Play();
         // Camera Guncam = GetComponentsInParent<Camera>()[0];
         // if(Physics.Raycast(Guncam.transform.position, Guncam.transform.forward, out RaycastHit ShootHit, Mathf.Infinity)){
             

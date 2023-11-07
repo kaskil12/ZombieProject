@@ -10,6 +10,7 @@ public class ZombieScript : MonoBehaviour
     public LayerMask PlayerMask;
     public NavMeshAgent ZombieAi;
     public Animator ZombieAnim;
+    public AudioSource ZombieGrowl;
     // Start is called before the first frame update
     void Start()
     {
@@ -20,6 +21,10 @@ public class ZombieScript : MonoBehaviour
     void Update()
     {
         PlayerDetection();
+        //Sound Effects
+        if(!ZombieGrowl.isPlaying){
+            ZombieGrowl.Play();
+        }
     }
     public void TakeDamage(float damage){
         Z_Health -= damage;

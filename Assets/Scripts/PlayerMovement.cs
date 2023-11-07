@@ -40,6 +40,12 @@ public class PlayerMovement : MonoBehaviour
     public GameObject AimingPos;
     //bobbing
     public float speedCurve;
+    //HeadBobbing
+    public Transform cameraTransform; // Reference to your first-person camera's Transform
+    public float bobbingSpeed = 1.0f; // Speed of the head bobbing
+    public float bobbingAmount = 0.05f; // Amount of head bobbing
+    public float midpoint = 1.0f; // Height at which the head is at its lowest point (typically the player's eye level)
+    private float timer = 0.0f;
     
     [Header("Weapons")]
     public GameObject HandObject;
@@ -161,6 +167,44 @@ public class PlayerMovement : MonoBehaviour
             }
         //Update Vector3 variable
             PlayerPos = gameObject.transform.position;
+        //Headbobbing
+        HeadBob();
+    }
+
+    //HeadBob
+    void HeadBob(){
+        float waveslice = 0.0f;
+        float horizontal = Input.GetAxis("Horizontal");
+        float vertical = Input.GetAxis("Vertical");
+
+        if (Mathf.Abs(horizontal) == 0 && Mathf.Abs(vertical) == 0)
+        {
+            timer = 0.0f;
+        }
+        else
+        {
+            waveslice = Mathf.Sin(timer);
+            timer += bobbingSpeed * Time.deltaTime;
+
+            if (timer > Mathf.PI * 2)
+            {
+                timer -= Mathf.PI * 2;
+            }
+        }
+
+        if (waveslice != 0)
+        {
+            float translateChange = waveslice * bobbingAmount;
+            float totalAxes = Mathf.Clamp01(Mathf.Abs(horizontal) + Mathf.Abs(vertical));
+            totalAxes = Mathf.Clamp(totalAxes, 0, 1);
+
+            translateChange = totalAxes * translateChange;
+            cameraTransform.localPosition = new Vector3(cameraTransform.localPosition.x, midpoint + translateChange, cameraTransform.localPosition.z);
+        }
+        else
+        {
+            cameraTransform.localPosition = new Vector3(cameraTransform.localPosition.x, midpoint, cameraTransform.localPosition.z);
+        }
     }
     
     public void DisableUnusedGun(){
