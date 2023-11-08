@@ -54,6 +54,9 @@ public class PlayerMovement : MonoBehaviour
     public float ExtraAmmoNotepad;
     public float BandageNotePad;
     bool NotepadActive;
+    public GameObject NotePadClosedPos;
+    public GameObject NotePadOpenPos;
+    public float OpenNoteSpeed;
     
     [Header("Weapons")]
     public GameObject HandObject;
@@ -187,11 +190,21 @@ public class PlayerMovement : MonoBehaviour
         if(NotepadActive){
             NotePadVoid();
             NotePad.SetActive(true);
+            if(Vector3.Distance(NotePad.transform.position, NotePadOpenPos.transform.position) > 0.1f){
+            NotePad.transform.position = Vector3.Lerp(NotePad.transform.position, NotePadOpenPos.transform.position, OpenNoteSpeed * Time.deltaTime);
+            }
             Looks = false;
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         }else{
-            NotePad.SetActive(false);
+            if(NotePad.active){
+                if(Vector3.Distance(NotePad.transform.position, NotePadClosedPos.transform.position) > 0.1f){
+                NotePad.transform.position = Vector3.Lerp(NotePad.transform.position, NotePadClosedPos.transform.position, OpenNoteSpeed * Time.deltaTime);
+                }else{
+                    NotePad.SetActive(false);
+                }
+                
+            }
         }
 
     }
@@ -201,24 +214,27 @@ public class PlayerMovement : MonoBehaviour
         BandageText.text = "Bandage's: " + BandageNotePad.ToString();
          if (Input.GetMouseButtonDown(0))
         {
-            Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
-            if (Physics.Raycast(MyCamera.transform.position, ray, out RaycastHit raycastHit, 100f))
+            Ray ray = MyCamera.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+
+            // Perform the raycast and check if it hits something
+            if (Physics.Raycast(ray, out hit))
             {
-                if (raycastHit.transform != null)
+                if (hit.transform != null)
                 {
-                        if (raycastHit.collider.gameObject.tag == "AddAmmo")
+                        if (hit.collider.gameObject.tag == "AddAmmo")
                     {
                         ExtraAmmoPlus();
                     }
-                    if (raycastHit.collider.gameObject.tag == "SubtractAmmo")
+                    if (hit.collider.gameObject.tag == "SubtractAmmo")
                     {
                         ExtraAmmoSubtract();
                     }
-                    if (raycastHit.collider.gameObject.tag == "AddBandage")
+                    if (hit.collider.gameObject.tag == "AddBandage")
                     {
                         BandagePlus();
                     }
-                    if (raycastHit.collider.gameObject.tag == "SubtractBandage")
+                    if (hit.collider.gameObject.tag == "SubtractBandage")
                     {
                         BandageSubtract();
                     }
