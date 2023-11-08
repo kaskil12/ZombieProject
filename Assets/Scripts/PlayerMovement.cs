@@ -41,11 +41,19 @@ public class PlayerMovement : MonoBehaviour
     //bobbing
     public float speedCurve;
     //HeadBobbing
-    public Transform cameraTransform; // Reference to your first-person camera's Transform
-    public float bobbingSpeed = 1.0f; // Speed of the head bobbing
-    public float bobbingAmount = 0.05f; // Amount of head bobbing
-    public float midpoint = 1.0f; // Height at which the head is at its lowest point (typically the player's eye level)
+    public Transform cameraTransform;
+    public float bobbingSpeed = 1.0f; 
+    public float bobbingAmount = 0.05f;
+    public float midpoint = 1.0f;
     private float timer = 0.0f;
+
+    //NotePad/Inventory List
+    public GameObject NotePad;
+    public TMP_Text BandageText;
+    public TMP_Text ExtraAmmoText;
+    public float ExtraAmmoNotepad;
+    public float BandageNotePad;
+    bool NotepadActive;
     
     [Header("Weapons")]
     public GameObject HandObject;
@@ -70,6 +78,7 @@ public class PlayerMovement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        NotepadActive = false;
         Aiming = false;
         SlidAble = true;
         Jumpable = true;
@@ -135,9 +144,11 @@ public class PlayerMovement : MonoBehaviour
                 Cursor.visible = true;
             }else{
                 SettingsObject.SetActive(false);
-                Looks = true;
-                Cursor.lockState = CursorLockMode.Locked;
-                Cursor.visible = false;
+                if(!NotepadActive){
+                    Looks = true;
+                    Cursor.lockState = CursorLockMode.Locked;
+                    Cursor.visible = false;
+                }
             }
             AudioListener.volume = VolumeSlider.value;
             Sensitivity = SensetivitySlider.value;
@@ -169,6 +180,66 @@ public class PlayerMovement : MonoBehaviour
             PlayerPos = gameObject.transform.position;
         //Headbobbing
         HeadBob();
+        //NotePad
+        if(Input.GetKeyDown(KeyCode.I)){
+            NotepadActive = !NotepadActive;
+        }
+        if(NotepadActive){
+            NotePadVoid();
+            NotePad.SetActive(true);
+            Looks = false;
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }else{
+            NotePad.SetActive(false);
+        }
+
+    }
+
+    void NotePadVoid(){
+        ExtraAmmoText.text = "Extra Ammo: " + ExtraAmmoNotepad.ToString();
+        BandageText.text = "Bandage's: " + BandageNotePad.ToString();
+         if (Input.GetMouseButtonDown(0))
+        {
+            Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
+            if (Physics.Raycast(MyCamera.transform.position, ray, out RaycastHit raycastHit, 100f))
+            {
+                if (raycastHit.transform != null)
+                {
+                        if (raycastHit.collider.gameObject.tag == "AddAmmo")
+                    {
+                        ExtraAmmoPlus();
+                    }
+                    if (raycastHit.collider.gameObject.tag == "SubtractAmmo")
+                    {
+                        ExtraAmmoSubtract();
+                    }
+                    if (raycastHit.collider.gameObject.tag == "AddBandage")
+                    {
+                        BandagePlus();
+                    }
+                    if (raycastHit.collider.gameObject.tag == "SubtractBandage")
+                    {
+                        BandageSubtract();
+                    }
+                }
+            }
+            
+                
+            
+        }
+    }
+    public void BandagePlus(){
+        BandageNotePad += 1;
+    }
+    public void BandageSubtract(){
+        BandageNotePad -= 1;
+    }
+    public void ExtraAmmoPlus(){
+        ExtraAmmoNotepad += 1;
+    }
+    public void ExtraAmmoSubtract(){
+        ExtraAmmoNotepad -= 1;
     }
 
     //HeadBob

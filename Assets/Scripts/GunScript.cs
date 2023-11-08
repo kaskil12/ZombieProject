@@ -5,15 +5,17 @@ using UnityEngine;
 public class GunScript : MonoBehaviour
 {
     [Header("Misc")]
-    public bool Enabled;
-    public GameObject[] Arms;
-    public Animator GunAnim;
     private Camera Guncam;
     bool Shoot;
     bool Shooting;
     bool Reloading;
-    public PlayerMovement playerMovement;
     bool Executed = false;
+    //Active in editor
+    public bool Enabled;
+    public Animator GunAnim;
+    public GameObject[] Arms;
+    public PlayerMovement playerMovement;
+    public ParticleSystem MuzzleFlash;
     [Header("Audio")]
     public AudioSource ShootAudio;
     [Header("GunSpecs")]
@@ -38,6 +40,8 @@ public class GunScript : MonoBehaviour
     void Update()
     {
         if(Enabled){
+            //Disable/enable Animator if gun is inactive/active
+            GunAnim.SetBool("Enabled", true);
             //Enable Parts If Gun Is Enabled
                 foreach (GameObject Arms in Arms)
                 {
@@ -56,7 +60,7 @@ public class GunScript : MonoBehaviour
                 Quaternion targetRotation = rotationX * rotationY;
                 transform.localRotation = Quaternion.Slerp(transform.localRotation, targetRotation, SwaySmooth * Time.deltaTime);
             //Shooting
-                if(Input.GetMouseButtonDown(0) && !Reloading && Shoot && !Shooting){
+                if(Input.GetMouseButtonDown(0) && AmmoAmount > 0 && !Reloading && Shoot && !Shooting){
                     CallGun();
                 }
             //Reloading
@@ -73,6 +77,9 @@ public class GunScript : MonoBehaviour
             {
                 Arms.SetActive(false); 
             }
+            //Disable Anim
+            GunAnim.SetBool("Enabled", false);
+
         }
     }
     public void CallGun(){
@@ -81,6 +88,7 @@ public class GunScript : MonoBehaviour
         StartCoroutine(ShootDelay());
         GunAnim.SetTrigger("Shoot");
         ShootAudio.Play();
+        MuzzleFlash.Play();
         // Camera Guncam = GetComponentsInParent<Camera>()[0];
         // if(Physics.Raycast(Guncam.transform.position, Guncam.transform.forward, out RaycastHit ShootHit, Mathf.Infinity)){
             
